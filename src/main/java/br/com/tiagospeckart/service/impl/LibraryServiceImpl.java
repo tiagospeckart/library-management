@@ -57,7 +57,7 @@ public class LibraryServiceImpl implements LibraryService {
 		Library library = libraryOpt.orElseThrow();
 		
 		library.setName(newLibraryDto.name);
-		library.setAdress(newLibraryDto.adress);
+		library.setAdress(newLibraryDto.address);
 		library.setContact(newLibraryDto.contact);
 		
 		Library librarySaved = libraryRepository.save(library);

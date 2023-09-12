@@ -14,6 +14,7 @@ import br.com.tiagospeckart.models.User;
 import br.com.tiagospeckart.repository.BookRepository;
 import br.com.tiagospeckart.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +96,7 @@ public class BookServiceImplTest {
 		public void shouldCalculateCorrectDiscount() {
 			// Arrange
 			book.setCost(100.0F);
-			Double percentage = 50.0;
+			percentage = 50.0;
 			// Act
 			Double calculatedDiscount = service.calculateDiscountBasedOnPercentage(book, percentage);
 			// Assert
@@ -227,7 +228,7 @@ public class BookServiceImplTest {
 			);
 			// Assert
 			assertEquals("Nenhum livro foi encontrado", thrown.getMessage());
-		};
+		}
 
 		@Test
 		public void shouldThrowExceptionForEmptyBooks(){
@@ -237,12 +238,11 @@ public class BookServiceImplTest {
 			);
 			// Assert
 			assertEquals("Nenhum livro foi encontrado", thrown.getMessage());
-		};
+		}
 
 		@Test
 		public void shouldReturnCorrectNumberOfBooks(){
 			// Preparação
-			List<Book> books = new ArrayList<>(); // assegura que a lista está em um estado conhecido
 			Book book1 = new Book();
 			book1.setIsBorrowed(true);
 			books.add(book1);
@@ -256,6 +256,200 @@ public class BookServiceImplTest {
 
 			// Verificação
 			assertEquals(1L, bookCount.longValue());
+		}
+
+	}
+
+	@RunWith(MockitoJUnitRunner.class)
+	public static class	CalculateTotalCostOfBooksTests{
+		@Mock
+		static BookRepository bookRepository;
+
+		@Mock
+		static BookMapper bookMapper;
+
+		@Mock
+		static UserRepository userRepository;
+
+		@InjectMocks
+		static BookServiceImpl service;
+		List<Book> books;
+
+		@Before
+		public void setup() {
+			books = new ArrayList<>();
+		}
+
+
+		@Test
+		public void shouldThrowExceptionForNullBooks(){
+			books = null;
+
+			// Act
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.calculateTotalCostOfBooks(books)
+			);
+			// Assert
+			assertEquals("Nenhum livro foi encontrado", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldThrowExceptionForEmptyBooks(){
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.calculateTotalCostOfBooks(books)
+			);
+			// Assert
+			assertEquals("Nenhum livro foi encontrado", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldThrowExceptionForBookWithNullCost(){
+			Book book = new Book();
+			book.setCost(null);
+			books.add(book);
+
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.calculateTotalCostOfBooks(books)
+			);
+			// Assert
+			assertEquals("Livro cadastrado sem preço", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldReturnCorrectTotalCost(){
+			Double expectedTotalCost = 10.0;
+			Book book1 = new Book();
+			book1.setCost(3.0f);
+			books.add(book1);
+			Book book2 = new Book();
+			book2.setCost(7.0f);
+			books.add(book2);
+
+			// Act
+			Double totalTestedCost = service.calculateTotalCostOfBooks(books);
+
+			// Assert
+			assertEquals(expectedTotalCost, totalTestedCost);
+		}
+	}
+
+	@RunWith(MockitoJUnitRunner.class)
+	public static class GetMaxBooksCostsTests{
+		@Mock
+		static BookRepository bookRepository;
+
+		@Mock
+		static BookMapper bookMapper;
+
+		@Mock
+		static UserRepository userRepository;
+
+		@InjectMocks
+		static BookServiceImpl service;
+		List<Book> books;
+
+		@Before
+		public void setup() {
+			books = new ArrayList<>();
+		}
+
+		@Test
+		public void shouldThrowExceptionForNoRegisteredPrice(){
+			Double expectedMaxCost = 0.0;
+
+			Book book1 = new Book();
+			book1.setCost(null);
+			books.add(book1);
+
+			Book book2 = new Book();
+			book2.setCost(0.0f);
+			books.add(book2);
+
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.getMaxBooksCost(books)
+			);
+
+			assertEquals("Nenhum preço cadastrado", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldReturnCorrectMaxCost(){
+			Double expectedMaxCost = 3.0;
+
+			Book book1 = new Book();
+			book1.setCost(2.0f);
+			books.add(book1);
+
+			Book book2 = new Book();
+			book2.setCost(3.0f);
+			books.add(book2);
+
+			Book book3 = new Book();
+			book3.setCost(1.0f);
+			books.add(book3);
+
+			Double testedMaxCost = service.getMaxBooksCost(books);
+
+			assertEquals(expectedMaxCost, testedMaxCost);
+		}
+	}
+
+	@RunWith(MockitoJUnitRunner.class)
+	public static class GetNumberOfYearsReleasedTests{
+		@Mock
+		static BookRepository bookRepository;
+
+		@Mock
+		static BookMapper bookMapper;
+
+		@Mock
+		static UserRepository userRepository;
+
+		@InjectMocks
+		static BookServiceImpl service;
+		Book book;
+
+		@Before
+		public void setup() {
+			book = new Book();
+		}
+
+		@Test
+		public void shouldThrowExceptionForNullYearEdition(){
+			book.setYearEdition(null);
+
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.getNumberOfYearsReleased(book)
+			);
+
+			assertEquals("Ano de lançamento não encontrado", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldThrowExceptionForFutureYearEdition(){
+			book.setYearEdition(LocalDate.now().plusMonths(1));
+
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.getNumberOfYearsReleased(book)
+			);
+
+			assertEquals("Ano de lançamento depois de hoje", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldReturnCorrectNumberYearsReleased(){
+			Integer expectedYearReleased = 1;
+			book.setYearEdition(LocalDate.now().minusYears(1));
+
+			Integer testedYearReleased = service.getNumberOfYearsReleased(book);
+
+			assertEquals(expectedYearReleased, testedYearReleased);
 		}
 
 	}

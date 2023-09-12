@@ -17,7 +17,7 @@ public class LibraryMapper {
 		
 		dto.id = library.getId().toString();
 		dto.name = library.getName();
-		dto.adress = library.getAdress();
+		dto.address = library.getAdress();
 		dto.contact = library.getContact();
 		
 		return dto;
@@ -35,7 +35,7 @@ public class LibraryMapper {
 		final Library library = new Library();
 		library.setId(UUID.fromString(dto.id));
 		library.setName(dto.name);
-		library.setAdress(dto.adress);
+		library.setAdress(dto.address);
 		library.setContact(dto.contact);
 		
 		return library;
