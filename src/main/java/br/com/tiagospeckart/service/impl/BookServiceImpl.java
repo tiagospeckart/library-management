@@ -37,8 +37,9 @@ public class BookServiceImpl implements BookService {
     //Verifica se o usuário pode pegar o livro emprestado
     public boolean checkBookingPossibility(User user, Book book) {
     	
-    	if(book.getIsBorrowed() == null) 
-    		throw new IllegalArgumentException("O livro não possui o atributo necessário");
+    	if(book.getIsBorrowed() == null) {
+            throw new IllegalArgumentException("O livro não possui o atributo necessário");
+        }
     	
     	return !user.getIsPunished() && !book.getIsBorrowed();
     }
@@ -223,7 +224,7 @@ public class BookServiceImpl implements BookService {
     //======> Exemplo verify
     
     // Deleta um livro
-    public void deletBook(UUID id) {
+    public void deleteBook(UUID id) {
             Optional<Book> bookOpt = bookRepository.findById(id);
             
             if(bookOpt.isPresent()) {

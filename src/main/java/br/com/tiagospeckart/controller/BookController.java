@@ -38,6 +38,6 @@ public class BookController {
 
     @DeleteMapping("/{id}")
     public void deletBook(@PathVariable(value = "id") UUID id) {
-        bookService.deletBook(id);
+        bookService.deleteBook(id);
     }
 }

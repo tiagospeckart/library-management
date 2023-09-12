@@ -15,5 +15,5 @@ public interface BookService {
 	List<BookDto> getBooksSameAuthor(List<Book> books, String author);
 	BookDto getBookById(UUID id);
 	BookDto updateBook(BookDto newbookDto, UUID id);
-	void deletBook(UUID id);
+	void deleteBook(UUID id);
 }
