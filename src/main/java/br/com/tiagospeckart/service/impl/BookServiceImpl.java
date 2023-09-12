@@ -11,6 +11,7 @@ import br.com.tiagospeckart.repository.UserRepository;
 import br.com.tiagospeckart.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -45,7 +46,7 @@ public class BookServiceImpl implements BookService {
     }
     
     //Calcula o desconto baseado em uma porcentagem
-    public Double calculateDiscountBasedOnPercentage(Book book, Double percentage) {
+    public Double calculateDiscountBasedOnPercentage(@NonNull Book book, @NonNull Double percentage) {
     	return book.getCost() * percentage / 100;
     }
     
