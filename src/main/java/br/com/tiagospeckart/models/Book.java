@@ -1,6 +1,6 @@
 package br.com.tiagospeckart.models;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
