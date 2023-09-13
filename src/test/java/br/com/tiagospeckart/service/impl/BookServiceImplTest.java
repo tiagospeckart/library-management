@@ -451,6 +451,99 @@ public class BookServiceImplTest {
 
 			assertEquals(expectedYearReleased, testedYearReleased);
 		}
+	}
 
+	@RunWith(MockitoJUnitRunner.class)
+	public static class GetUsersWithBookWithLateDevolutionDateTests{
+		@Mock
+		static BookRepository bookRepository;
+
+		@Mock
+		static BookMapper bookMapper;
+
+		@Mock
+		static UserRepository userRepository;
+
+		@InjectMocks
+		static BookServiceImpl service;
+		List<User> users;
+		List<Book> books;
+
+		@Before
+		public void setup() {
+			users = new ArrayList<>();
+			books = new ArrayList<>();
+		}
+
+		@Test
+		public void shouldReturnEmptyListWhenNoBooksHaveDevolutionDate() {
+			Book bookWithoutDevolutionDate = new Book();
+			bookWithoutDevolutionDate.setDevolutionDate(null);
+			books.add(bookWithoutDevolutionDate);
+
+			List<User> result = service.getUsersWithBookWithLateDevolutionDate(books);
+
+			assertTrue(result.isEmpty());
+		}
+
+		@Test
+		public void shouldThrowExceptionWhenBookHasDevolutionDateButNoUser() {
+			Book bookWithDevolutionDate = new Book();
+			bookWithDevolutionDate.setDevolutionDate(LocalDate.now());
+			bookWithDevolutionDate.setUser(null);
+			bookWithDevolutionDate.setName("Test Book");
+			books.add(bookWithDevolutionDate);
+
+			IllegalArgumentException thrown = assertThrows(
+					IllegalArgumentException.class,
+					() -> service.getUsersWithBookWithLateDevolutionDate(books)
+			);
+
+			assertEquals("O livro Test Book possui data de devolução mas não tem usuário relacionado.", thrown.getMessage());
+		}
+
+		@Test
+		public void shouldReturnUsersWithLateDevolutionBooks() {
+			User user1 = new User();
+			User user2 = new User();
+
+			Book book1 = new Book();
+			book1.setDevolutionDate(LocalDate.now());
+			book1.setUser(user1);
+
+			Book book2 = new Book();
+			book2.setDevolutionDate(LocalDate.now());
+			book2.setUser(user2);
+
+			books.add(book1);
+			books.add(book2);
+
+			List<User> result = service.getUsersWithBookWithLateDevolutionDate(books);
+
+			assertTrue(result.contains(user1));
+			assertTrue(result.contains(user2));
+			assertEquals(2, result.size());
+		}
+
+		@Test
+		public void shouldNotAddDuplicateUsers() {
+			User user1 = new User();
+
+			Book book1 = new Book();
+			book1.setDevolutionDate(LocalDate.now());
+			book1.setUser(user1);
+
+			Book book2 = new Book();
+			book2.setDevolutionDate(LocalDate.now());
+			book2.setUser(user1);
+
+			books.add(book1);
+			books.add(book2);
+
+			List<User> result = service.getUsersWithBookWithLateDevolutionDate(books);
+
+			assertTrue(result.contains(user1));
+			assertEquals(1, result.size());
+		}
 	}
 }
